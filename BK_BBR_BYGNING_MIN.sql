@@ -1,0 +1,50 @@
+﻿SELECT
+				BBR_Aktiv_Bygning.KommuneNr,
+				BBR_Aktiv_Bygning.Bygningsnummer,
+				BBR_Aktiv_Bygning.Ejendomsnummer,
+				BBR_Aktiv_Bygning.BFEnr,
+				BBR_Aktiv_Bygning.BygningensAnvendelseKode,
+				Case
+				When BBR_Aktiv_Bygning.BygningensAnvendelse like '(Udfases)%'
+				Then Right(BBR_Aktiv_Bygning.BygningensAnvendelse, len(BBR_Aktiv_Bygning.BygningensAnvendelse)-10)
+				Else BBR_Aktiv_Bygning.BygningensAnvendelse
+				End AS BygningensAnvendelse,
+				DAR_AKTIVE_ADRESSER.Enh_Adresse,
+				DAR_AKTIVE_ADRESSER.VejNavn + ' ' + DAR_AKTIVE_ADRESSER.Husnummer AS Adgangsadresse,
+				DAR_AKTIVE_ADRESSER.ByNavn,
+				DAR_AKTIVE_ADRESSER.PostNr,
+				DAR_AKTIVE_ADRESSER.Postdistrikt,
+				BBR_Aktiv_Bygning.Opfoerelsesaar,
+				BBR_Aktiv_Bygning.OmTilbygningsaar,
+				BBR_Aktiv_Bygning.VandforsyningKode,
+				BBR_Aktiv_Bygning.Vandforsyning,
+				BBR_Aktiv_Bygning.AfloebsforholdKode,
+				BBR_Aktiv_Bygning.Afloebsforhold,
+				BBR_Aktiv_Bygning.SamletBygningsareal,
+				BBR_Aktiv_Bygning.BygningensSamledeBoligAreal,
+				BBR_Aktiv_Bygning.BygningensSamledeErhvervsAreal,
+				BBR_Aktiv_Bygning.BebyggetAreal,
+				BBR_Aktiv_Bygning.ArealIndbyggetGarage,
+				BBR_Aktiv_Bygning.ArealIndbyggetCarport,
+				BBR_Aktiv_Bygning.ArealIndbyggetUdhus,
+				BBR_Aktiv_Bygning.ArealIndbyggetUdestueEllerLign,
+				BBR_Aktiv_Bygning.SamletArealLukOverdaekPaaByg,
+				BBR_Aktiv_Bygning.ArealAffaldsrumITerraenniveau,
+				BBR_Aktiv_Bygning.AndetAreal,
+				BBR_Aktiv_Bygning.ArealAfOverdaekketAreal,
+				BBR_Aktiv_Bygning.ArealAabneOverdaekBygSamlet,
+				BBR_Aktiv_Bygning.Adgangsareal,
+				BBR_Aktiv_Bygning.AntalEtager,
+				BBR_Aktiv_Bygning.AfvigendeEtagerKode,
+				BBR_Aktiv_Bygning.AfvigendeEtager,
+				BBR_Aktiv_Bygning.VarmeinstallationKode,
+				BBR_Aktiv_Bygning.Varmeinstallation,
+				BBR_Aktiv_Bygning.OpvarmningsmiddelKode,
+				BBR_Aktiv_Bygning.Opvarmningsmiddel,
+				BBR_Aktiv_Bygning.SupplerendeVarmeKode,
+				BBR_Aktiv_Bygning.SupplerendeVarme,
+				BBR_Aktiv_Bygning.Geometri,
+				CAST('Pen (1,2,0) Brush (1,0,16777215) Symbol (51,255,9,"MapInfo Symbols",0,0)' AS varchar(100)) AS MI_STYLE
+FROM
+				BBR_Aktiv_Bygning LEFT OUTER JOIN
+				DAR_AKTIVE_ADRESSER ON BBR_Aktiv_Bygning.HusnummerID = DAR_AKTIVE_ADRESSER.HusnummerID

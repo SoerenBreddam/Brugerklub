@@ -1,0 +1,51 @@
+SELECT DISTINCT
+           ESR.KOMMUNENUMMER, dbo.CO11800T.BFE_NUMMER, ESR.EJENDOMSNR AS Ejendomsnummer, ESR.ABELIG AS Ejendomsbeliggenhed, ISNULL(ADR.ANAVN, '') AS Ejers_navn, ISNULL(ADR.ACONAVN, '') AS Ejers_CO_navn, ISNULL(ADR.AADRESS, '') AS Ejers_adresse, ISNULL(ADR.AUDVADR, '') AS Ejers_udvidede_adresse, ISNULL(ADR.APOST, '') AS Postdistrikt, ISNULL(VUR.CBENYT, '00')
+           AS Benyttelseskode, CAST(dbo.QL61500V_T.TEKST AS VARCHAR(70)) AS Benyttelse, EJE.CMSTAT AS Ejers_statuskode, CAST(dbo.QL63200V_T.TEKST AS VARCHAR(75)) AS Ejerstatus, EJE.CPENS, CAST(dbo.QL63400V_T.TEKST AS VARCHAR(75)) AS Pensioniststatus, EJE.CLEJE AS Lejeværdikode, CAST(dbo.QL63500V_T.TEKST AS VARCHAR(75)) AS Lejeværdi,
+           EJE.CBSKADR AS Kode_for_adressebeskyttelse, CAST(dbo.QL63600V_T.TEKST AS VARCHAR(75)) AS Adressebeskyttelse, CASE WHEN EJE.DSLUTS < '1753-01-01' THEN CONVERT(datetime, '1753-01-01', 120) ELSE CONVERT(datetime, EJE.DSLUTS, 120) END AS Slutseddeldato, CASE WHEN EJE.DSKOED < '1753-01-01' THEN CONVERT(datetime,
+                         '1753-01-01', 120) ELSE CONVERT(datetime, EJE.DSKOED, 120) END AS Skødedato, CASE WHEN EJE.DOVTG < '1753-01-01' THEN CONVERT(datetime, '1753-01-01', 120) ELSE CONVERT(datetime, EJE.DOVTG, 120)
+                         END AS Overtagelsesdato, CAST(dbo.QL63700V_T.TEKST AS VARCHAR(75)) AS Overdragelsesmåde, EJE.BKOEBS AS Købesum, CAST(CAST(EJE.GKOETAEL AS varchar(6))
+           + '/' + CAST(EJE.GKOENAEV AS varchar(6)) AS varchar(12)) AS Køberandel, CAST(CAST(EJE.GEJTAEL AS varchar(6)) + '/' + CAST(EJE.GEJNAEV AS varchar(6)) AS varchar(12)) AS Ejerandel, EJE.DCPRCIR AS Ejer_CPR_CVR, ESR.FTOTAR AS Ejendomsareal, ESR.FTOTVEJ AS Heraf_vejareal, ESR.FARVUR AS Vurderet_areal, ESR.FVEJVUR AS Heraf_vurderet_vejareal, EJE.CEJFORH AS Ejerforholdskode,
+           CAST(dbo.QL50000V_T.TEKST AS VARCHAR(133)) AS Ejerforhold, ISNULL
+               ((SELECT  CAST(COUNT(*) AS smallint) AS Expr1
+               FROM    dbo.JN61000T AS EJE
+               WHERE  (FK_ESREJENDOM_ID = ESR.ESREJENDOM_ID) AND (TID_UD > CONVERT(char(26), GETDATE(), 121)) AND (CMSTAT < 3)), CAST(0 AS smallint)) AS Antal_ejere, ISNULL(VUR.FLEJL, 0) AS Antal_lejligheder, ESR.MODEREJENDOMSNR AS Moderejendomsnummer, ADR2.ANAVN AS Administrators_navn, ADR2.ACONAVN AS Administrators_CO_navn, ADR2.AADRESS AS Administrators_adresse,
+           ADR2.AUDVADR AS Administrators_udv_adresse, ADR2.APOST AS Administrators_postdistrikt, ESR.EADMNR AS Administratornummer, ISNULL(ADM.DCPRADM, 0) AS Administrators_CPR_CVR, ISNULL(ADM.CADM, '  ') AS Administratorkode, dbo.QL65000V_T.TEKST AS Administratorstatus, dbo.MAT_Aktiv_SamletFastEjendom.SFEObjectID AS MI_PRINX,
+		         Case
+		         When ADM.DCPRADM >1000
+		         Then
+		           Case
+		           When ADM.DCPRADM between 100000000 and 1000000000
+		           Then CAST('0'+LEFT(CONVERT(VARCHAR,ADM.DCPRADM),5)+'-'+RIGHT(CONVERT(VARCHAR,ADM.DCPRADM),4) AS VARCHAR(11))
+		           When ADM.DCPRADM>1000000000
+		           Then CAST(LEFT(CONVERT(VARCHAR,ADM.DCPRADM),6)+'-'+RIGHT(CONVERT(VARCHAR,ADM.DCPRADM),4) AS VARCHAR(11))
+		           When ADM.DCPRADM between 1000 and 100000000
+		           Then CONVERT(VARCHAR,ADM.DCPRADM)
+		           End
+		         Else
+							Case
+							When EJE.DCPRCIR between 100000000 and 1000000000
+		          Then CAST('0'+LEFT(CONVERT(VARCHAR,EJE.DCPRCIR),5)+'-'+RIGHT(CONVERT(VARCHAR,EJE.DCPRCIR),4) AS VARCHAR(11))
+		          When EJE.DCPRCIR>1000000000
+		          Then CAST(LEFT(CONVERT(VARCHAR,EJE.DCPRCIR),6)+'-'+RIGHT(CONVERT(VARCHAR,EJE.DCPRCIR),4) AS VARCHAR(11))
+		          When EJE.DCPRCIR between 1000 and 100000000
+		          Then CONVERT(VARCHAR,EJE.DCPRCIR)
+		          End
+		         End
+		           AS D2M
+FROM    dbo.CO11800T RIGHT OUTER JOIN
+           dbo.MAT_Aktiv_SamletFastEjendom ON dbo.CO11800T.BFE_NUMMER = dbo.MAT_Aktiv_SamletFastEjendom.BFEnr RIGHT OUTER JOIN
+           dbo.QL63200V_T RIGHT OUTER JOIN
+           dbo.QL63400V_T RIGHT OUTER JOIN
+           dbo.QL63500V_T RIGHT OUTER JOIN
+           dbo.QL63600V_T RIGHT OUTER JOIN
+           dbo.QL63700V_T RIGHT OUTER JOIN
+           dbo.JN61100T AS ADR RIGHT OUTER JOIN
+           dbo.JN61000T AS EJE ON ADR.FK_ESREJENDOM_ID = EJE.FK_ESREJENDOM_ID AND ADR.FK_DCPRCIR = EJE.DCPRCIR AND ADR.FK_TID_UD > CONVERT(char(26), GETDATE(), 121) AND ADR.FK_TID_UD = EJE.TID_UD LEFT OUTER JOIN
+           dbo.QL50000V_T ON EJE.CEJFORH = dbo.QL50000V_T.KODE ON dbo.QL63700V_T.KODE = EJE.COVMD ON dbo.QL63600V_T.KODE = EJE.CBSKADR ON dbo.QL63500V_T.KODE = EJE.CLEJE ON dbo.QL63400V_T.KODE = EJE.CPENS ON dbo.QL63200V_T.KODE = EJE.CMSTAT ON dbo.CO11800T.EJD_NR = EJE.EJENDOMSNR RIGHT OUTER JOIN
+           dbo.QL61500V_T RIGHT OUTER JOIN
+           dbo.JM64000T AS VUR ON dbo.QL61500V_T.KODE = VUR.CBENYT RIGHT OUTER JOIN
+           dbo.JN60400T AS ADM RIGHT OUTER JOIN
+           dbo.JN60500T AS ESR ON ADM.FK_ESREJENDOM_ID = ESR.ESREJENDOM_ID LEFT OUTER JOIN
+           dbo.QL65000V_T ON ADM.CADM = dbo.QL65000V_T.KODE LEFT OUTER JOIN
+           dbo.JN60600T AS ADR2 ON ADM.FK_ESREJENDOM_ID = ADR2.FK_ESREJENDOM_ID ON VUR.FK_ESREJENDOM_ID = ESR.ESREJENDOM_ID ON EJE.FK_ESREJENDOM_ID = ESR.ESREJENDOM_ID
+WHERE  (ESR.ESREJENDOM_ID > 0) AND (EJE.TID_UD >= CONVERT(char(26), GETDATE(), 121)) AND (ISNULL(ADM.CADM, '  ') > '0')
